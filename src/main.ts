@@ -7,7 +7,7 @@ async function main () {
             id: Int
             title: String
             price: Int
-            author: Author
+            authors: [Author]
         }
 
         type Author {
@@ -15,7 +15,17 @@ async function main () {
         }
         
         type Query {
-            books: [Book]
+            books (criteria: String): [Book]
+        }
+
+        input BookInput {
+            title: String,
+            price: Int,
+            authorName: String
+        }
+
+        type Mutation {
+            saveBook (book: BookInput): Book
         }
     `;
 
@@ -24,24 +34,61 @@ async function main () {
             id: 1,
             title: "Clean code",
             price: 59,
-            author: {
+            authors: [{
                 name: "robert"
-            }
+            }]
         },
         {
             id: 2,
             title: "refactoring",
             price: 79,
-            author: {
+            authors: [{
                 name: "martin"
+            }]
+        },
+        {
+            id: 3,
+            title: "design patterns",
+            price: 79,
+            authors: [{
+                name: "erich gamma"
+            },
+            {
+                name: "richard helm"
+            },
+            {
+                name: "ralph johnson"
+            },
+            {
+                name: "john vlissides"
             }
+            ]
         }
     ];
 
     const resolvers = {
         Query: {
-            books (){
-                return books;
+
+
+            books (_: any, args: any){
+                if (!args.criteria) return books;
+                return books.filter((book: any)=>{
+                    return book.title.includes(args.criteria);
+                });
+            }
+        },
+        Mutation: {
+            saveBook (_: any, args: any){
+                const book = {
+                    id: books.length + 1,
+                    title: args.book.title,
+                    price: args.book.price,
+                    authors: [{
+                        name: args.book.authorName
+                    }]
+                }
+                books.push(book);
+                return book;
             }
         }
     };
