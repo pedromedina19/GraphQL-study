@@ -1,2 +1,1 @@
-# hexagonal arquiteture study
- Nest
+# GraphQL study
